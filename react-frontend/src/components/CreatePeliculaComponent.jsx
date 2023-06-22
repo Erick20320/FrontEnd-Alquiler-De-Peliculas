@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
+import PeliculaService from '../services/PeliculaService';
 
 class CreatePeliculaComponent extends Component {
   constructor(props) {
@@ -19,25 +20,43 @@ class CreatePeliculaComponent extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-
   handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(this.state);
+    //console.log(this.state);
 
-    this.setState({
-      titulo: '',
-      genero: '',
-      anioEstreno: '',
-      duracionMinutos: '',
-      director: '',
-      sinopsis: '',
-      imagen: '',
-      disponible: false
-    });
+    const pelicula = {
+      titulo: this.state.titulo,
+      genero: this.state.genero,
+      anioEstreno: this.state.anioEstreno,
+      duracionMinutos: this.state.duracionMinutos,
+      director: this.state.director,
+      sinopsis: this.state.sinopsis,
+      imagen: this.state.imagen,
+      disponible: this.state.disponible
+    };
 
-    this.props.closeModal();
+    PeliculaService.createPelicula(pelicula)
+      .then(response => {
+        console.log('Película guardada exitosamente');
+        this.setState({
+          titulo: '',
+          genero: '',
+          anioEstreno: '',
+          duracionMinutos: '',
+          director: '',
+          sinopsis: '',
+          imagen: '',
+          disponible: false
+        });
+        this.props.closeModal();
+        this.props.refreshPeliculas();
+      })
+      .catch(error => {
+        console.error('Error al guardar la película:', error);
+      });
   };
+
 
   render() {
     return (
@@ -63,11 +82,11 @@ class CreatePeliculaComponent extends Component {
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Año de Estreno:</label>
-                      <input type="text" name="anioEstreno" className="form-control" value={this.state.anioEstreno} onChange={(e) => this.setState({ anioEstreno: e.target.value })} />
+                      <input type="number" name="anioEstreno" className="form-control" value={this.state.anioEstreno} onChange={(e) => this.setState({ anioEstreno: e.target.value })} />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Duración (minutos):</label>
-                      <input type="text" name="duracionMinutos" className="form-control" value={this.state.duracionMinutos} onChange={(e) => this.setState({ duracionMinutos: e.target.value })} />
+                      <input type="number" name="duracionMinutos" className="form-control" value={this.state.duracionMinutos} onChange={(e) => this.setState({ duracionMinutos: e.target.value })} />
                     </div>
                   </div>
                   <div className="row">

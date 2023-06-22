@@ -12,6 +12,7 @@ class ListPeliculaComponent extends Component {
         this.addPelicula = this.addPelicula.bind(this);
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.refreshPeliculas = this.refreshPeliculas.bind(this);
     }
 
     componentDidMount() {
@@ -24,6 +25,17 @@ class ListPeliculaComponent extends Component {
             this.props.history.push('/add-Pelicula');
         }
     */
+
+    refreshPeliculas() {
+        PeliculaService.getPeliculas()
+            .then((res) => {
+                this.setState({ peliculas: res.data });
+            })
+            .catch((error) => {
+                console.error('Error al obtener las películas:', error);
+            });
+    }
+
     addPelicula() {
         this.openModal();
     }
@@ -59,8 +71,8 @@ class ListPeliculaComponent extends Component {
                                         <th>Duración</th>
                                         <th>Director</th>
                                         <th>Sinopsis</th>
-                                        <th>Imagen</th>
                                         <th>Disponible</th>
+                                        <th>Imagen</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -76,8 +88,8 @@ class ListPeliculaComponent extends Component {
                                                     <td>{pelicula.duracionMinutos}</td>
                                                     <td>{pelicula.director}</td>
                                                     <td>{pelicula.sinopsis}</td>
-                                                    <td>{pelicula.imagen}</td>
                                                     <td>{pelicula.disponible ? 'Sí' : 'No'}</td>
+                                                    <td>{pelicula.imagen}</td>
                                                 </tr>
                                         )
                                     }
@@ -87,7 +99,7 @@ class ListPeliculaComponent extends Component {
                         </div>
                     </div>
                 </div>
-                {this.state.showModal && <CreatePeliculaComponent closeModal={this.closeModal} />}
+                {this.state.showModal && <CreatePeliculaComponent closeModal={this.closeModal} refreshPeliculas={this.refreshPeliculas} />}
             </div>
         );
     }

@@ -8,6 +8,10 @@ class PeliculaService {
         return axios.get(PELICULA_API_BASE_URL);
     }
 
+    createPelicula(pelicula) {
+        return axios.post(PELICULA_API_BASE_URL, pelicula);
+      }
+
 }
 
 const peliculaService = new PeliculaService();
