@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import PeliculaService from '../services/PeliculaService';
 import CreatePeliculaComponent from '../components/CreatePeliculaComponent';
+import UpdatePeliculaComponent from '../components/UpdatePeliculaComponent';
 
 class ListPeliculaComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             peliculas: [],
-            showModal: false
+            showAddModal: false,
+            showUpdateModal: false,
+            selectedPelicula: null
         };
         this.addPelicula = this.addPelicula.bind(this);
-        this.openModal = this.openModal.bind(this);
+        this.updatePelicula = this.updatePelicula.bind(this);
+        this.deletePelicula = this.deletePelicula.bind(this);
+        this.openAddModal = this.openAddModal.bind(this);
+        this.openUpdateModal = this.openUpdateModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.refreshPeliculas = this.refreshPeliculas.bind(this);
     }
@@ -37,15 +43,35 @@ class ListPeliculaComponent extends Component {
     }
 
     addPelicula() {
-        this.openModal();
+        this.openAddModal();
     }
 
-    openModal() {
-        this.setState({ showModal: true });
+    updatePelicula(id) {
+        const pelicula = this.state.peliculas.find((pelicula) => pelicula.id === id);
+        this.setState({ selectedPelicula: pelicula, showUpdateModal: true });
+    }
+
+    deletePelicula(id) {
+        PeliculaService.deletePelicula(id)
+            .then((res) => {
+                console.log('Película eliminada con éxito');
+                this.refreshPeliculas();
+            })
+            .catch((error) => {
+                console.error('Error al eliminar la película:', error);
+            });
+    }
+
+    openAddModal() {
+        this.setState({ showAddModal: true });
+    }
+
+    openUpdateModal() {
+        this.setState({ showUpdateModal: true });
     }
 
     closeModal() {
-        this.setState({ showModal: false });
+        this.setState({ showAddModal: false, showUpdateModal: false });
     }
 
     render() {
@@ -54,7 +80,7 @@ class ListPeliculaComponent extends Component {
                 <h2 className="text-center">Lista De Películas</h2>
                 <hr />
                 <div className="d-flex justify-content-end mb-3">
-                    <button type="button" className="btn btn-success" onClick={this.openModal}>
+                    <button type="button" className="btn btn-success" onClick={this.openAddModal}>
                         Agregar
                     </button>
                 </div>
@@ -90,6 +116,17 @@ class ListPeliculaComponent extends Component {
                                                     <td>{pelicula.sinopsis}</td>
                                                     <td>{pelicula.disponible ? 'Sí' : 'No'}</td>
                                                     <td>{pelicula.imagen}</td>
+                                                    <td>
+                                                        <div className="d-flex">
+                                                            <button className="btn btn-primary" onClick={() => this.updatePelicula(pelicula.id)}>
+                                                                Modificar
+                                                            </button>
+                                                            <div className="mx-1"></div>
+                                                            <button className="btn btn-danger" onClick={() => this.deletePelicula(pelicula.id)}>
+                                                                Eliminar
+                                                            </button>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                         )
                                     }
@@ -99,7 +136,19 @@ class ListPeliculaComponent extends Component {
                         </div>
                     </div>
                 </div>
-                {this.state.showModal && <CreatePeliculaComponent closeModal={this.closeModal} refreshPeliculas={this.refreshPeliculas} />}
+                {this.state.showAddModal && (
+                    <CreatePeliculaComponent
+                        closeModal={this.closeModal}
+                        refreshPeliculas={this.refreshPeliculas}
+                    />
+                )}
+                {this.state.showUpdateModal && (
+                    <UpdatePeliculaComponent
+                        closeModal={this.closeModal}
+                        refreshPeliculas={this.refreshPeliculas}
+                        pelicula={this.state.selectedPelicula}
+                    />
+                )}
             </div>
         );
     }

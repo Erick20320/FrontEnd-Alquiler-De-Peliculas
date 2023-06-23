@@ -12,8 +12,12 @@ class HeaderComponent extends Component {
         return (
             <div>
                 <header>
-                    <nav className='navbar navbar-expand-md navbar-dark bg-dark'>
-                        <div><a href="http://localhost:3000/peliculas" className='navbar-brand'>Alquiler de películas</a></div>
+                    <nav className="navbar navbar-expand-md navbar-dark bg-dark">
+                        <div className="container">
+                            <a href="http://http://192.168.1.24:3000/peliculas" className="navbar-brand">
+                                Alquiler de películas
+                            </a>
+                        </div>
                     </nav>
                 </header>
             </div>

@@ -57,7 +57,6 @@ class CreatePeliculaComponent extends Component {
       });
   };
 
-
   render() {
     return (
       <div>
