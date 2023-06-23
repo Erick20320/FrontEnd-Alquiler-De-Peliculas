@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PeliculaService from '../services/PeliculaService';
 import CreatePeliculaComponent from '../components/CreatePeliculaComponent';
 import UpdatePeliculaComponent from '../components/UpdatePeliculaComponent';
+import ViewPeliculaComponent from '../components/ViewPeliculaComponent';
+
 
 class ListPeliculaComponent extends Component {
     constructor(props) {
@@ -10,21 +12,21 @@ class ListPeliculaComponent extends Component {
             peliculas: [],
             showAddModal: false,
             showUpdateModal: false,
-            selectedPelicula: null
+            showViewModal: false,
+            selectedPelicula: null,
         };
         this.addPelicula = this.addPelicula.bind(this);
         this.updatePelicula = this.updatePelicula.bind(this);
         this.deletePelicula = this.deletePelicula.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
+        this.openViewModal = this.openViewModal.bind(this);
         this.openUpdateModal = this.openUpdateModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.refreshPeliculas = this.refreshPeliculas.bind(this);
     }
 
     componentDidMount() {
-        PeliculaService.getPeliculas().then((res) => {
-            this.setState({ peliculas: res.data });
-        });
+        this.refreshPeliculas();
     }
     /*
         addPelicula(){
@@ -44,6 +46,14 @@ class ListPeliculaComponent extends Component {
 
     addPelicula() {
         this.openAddModal();
+    }
+
+    viewPelicula(id) {
+        const pelicula = this.state.peliculas.find((pelicula) => pelicula.id === id);
+        this.setState({
+            selectedPelicula: pelicula,
+            showViewModal: true
+        });
     }
 
     updatePelicula(id) {
@@ -66,12 +76,16 @@ class ListPeliculaComponent extends Component {
         this.setState({ showAddModal: true });
     }
 
+    openViewModal() {
+        this.setState({ showViewModal: true });
+    }
+
     openUpdateModal() {
         this.setState({ showUpdateModal: true });
     }
 
     closeModal() {
-        this.setState({ showAddModal: false, showUpdateModal: false });
+        this.setState({ showAddModal: false, showViewModal: false, showUpdateModal: false });
     }
 
     render() {
@@ -118,6 +132,10 @@ class ListPeliculaComponent extends Component {
                                                     <td>{pelicula.imagen}</td>
                                                     <td>
                                                         <div className="d-flex">
+                                                            <button className="btn btn-info" onClick={() => this.viewPelicula(pelicula.id)}>
+                                                                Ver
+                                                            </button>
+                                                            <div className="mx-1"></div>
                                                             <button className="btn btn-primary" onClick={() => this.updatePelicula(pelicula.id)}>
                                                                 Modificar
                                                             </button>
@@ -142,6 +160,14 @@ class ListPeliculaComponent extends Component {
                         refreshPeliculas={this.refreshPeliculas}
                     />
                 )}
+
+                {this.state.showViewModal && (
+                    <ViewPeliculaComponent
+                        closeModal={this.closeModal}
+                        pelicula={this.state.selectedPelicula}
+                    />
+                )}
+
                 {this.state.showUpdateModal && (
                     <UpdatePeliculaComponent
                         closeModal={this.closeModal}
