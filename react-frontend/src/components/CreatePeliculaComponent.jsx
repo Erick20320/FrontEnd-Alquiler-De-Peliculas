@@ -13,34 +13,32 @@ class CreatePeliculaComponent extends Component {
       duracionMinutos: '',
       director: '',
       sinopsis: '',
-      imagen: '',
+      imagen: null,
       disponible: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleImageChange = this.handleImageChange.bind(this);
   }
 
-  
-
-  handleSubmit = (e) => {
+  handleSubmit(e) {
     e.preventDefault();
 
-    //console.log(this.state);
-
-    const pelicula = {
+    const formData = new FormData();
+    formData.append('imagen', this.state.imagen);
+    formData.append('pelicula', JSON.stringify({
       titulo: this.state.titulo,
       genero: this.state.genero,
       anioEstreno: this.state.anioEstreno,
       duracionMinutos: this.state.duracionMinutos,
       director: this.state.director,
       sinopsis: this.state.sinopsis,
-      imagen: this.state.imagen,
       disponible: this.state.disponible
-    };
+    }));
 
-    PeliculaService.createPelicula(pelicula)
+    PeliculaService.createPelicula(formData)
       .then(response => {
-        console.log('Película guardada exitosamente');
+        console.log('imagen guardada exitosamente');
         this.setState({
           titulo: '',
           genero: '',
@@ -48,7 +46,7 @@ class CreatePeliculaComponent extends Component {
           duracionMinutos: '',
           director: '',
           sinopsis: '',
-          imagen: '',
+          imagen: null,
           disponible: false
         });
         this.props.closeModal();
@@ -57,7 +55,12 @@ class CreatePeliculaComponent extends Component {
       .catch(error => {
         console.error('Error al guardar la película:', error);
       });
-  };
+  }
+
+  handleImageChange(e) {
+    this.setState({ imagen: e.target.files[0] });
+  }
+
 
   render() {
     return (
@@ -73,37 +76,37 @@ class CreatePeliculaComponent extends Component {
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Título:</label>
-                      <input type="text" name="titulo" className="form-control" value={this.state.titulo} onChange={(e) => this.setState({ titulo: e.target.value })} required/>
+                      <input type="text" name="titulo" className="form-control" value={this.state.titulo} onChange={(e) => this.setState({ titulo: e.target.value })} required />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Género:</label>
-                      <input type="text" name="genero" className="form-control" value={this.state.genero} onChange={(e) => this.setState({ genero: e.target.value })} required/>
+                      <input type="text" name="genero" className="form-control" value={this.state.genero} onChange={(e) => this.setState({ genero: e.target.value })} required />
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Año de Estreno:</label>
-                      <input type="number" name="anioEstreno" className="form-control" value={this.state.anioEstreno} onChange={(e) => this.setState({ anioEstreno: e.target.value })} required/>
+                      <input type="number" name="anioEstreno" className="form-control" value={this.state.anioEstreno} onChange={(e) => this.setState({ anioEstreno: e.target.value })} required />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Duración (minutos):</label>
-                      <input type="number" name="duracionMinutos" className="form-control" value={this.state.duracionMinutos} onChange={(e) => this.setState({ duracionMinutos: e.target.value })} required/>
+                      <input type="number" name="duracionMinutos" className="form-control" value={this.state.duracionMinutos} onChange={(e) => this.setState({ duracionMinutos: e.target.value })} required />
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Director:</label>
-                      <input type="text" name="director" className="form-control" value={this.state.director} onChange={(e) => this.setState({ director: e.target.value })} required/>
+                      <input type="text" name="director" className="form-control" value={this.state.director} onChange={(e) => this.setState({ director: e.target.value })} required />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Sinopsis:</label>
-                      <textarea name="sinopsis" className="form-control" value={this.state.sinopsis} onChange={(e) => this.setState({ sinopsis: e.target.value })} required/>
+                      <textarea name="sinopsis" className="form-control" value={this.state.sinopsis} onChange={(e) => this.setState({ sinopsis: e.target.value })} required />
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Imagen:</label>
-                      <input type="text" name="imagen" className="form-control" value={this.state.imagen} onChange={(e) => this.setState({ imagen: e.target.value })} required/>
+                      <input type="file" name="imagen" className="form-control" onChange={this.handleImageChange} required />
                     </div>
                     <div className="col-md-6 mb-3">
                       <div className="form-check">
