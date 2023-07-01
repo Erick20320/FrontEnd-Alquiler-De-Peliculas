@@ -90,7 +90,7 @@ class ListPeliculaComponent extends Component {
 
     render() {
         return (
-            <div className="container">
+            <div className="container mb-5">
                 <h2 className="text-center">Lista De Películas</h2>
                 <hr />
                 <div className="d-flex justify-content-end mb-3">
@@ -101,7 +101,7 @@ class ListPeliculaComponent extends Component {
                 <div className="row">
                     <div className="col">
                         <div className="table-responsive">
-                            <table className="table table-striped table-bordered">
+                            <table className="table table-striped table-bordered ">
 
                                 <thead>
                                     <tr>
@@ -112,7 +112,7 @@ class ListPeliculaComponent extends Component {
                                         <th>Director</th>
                                         <th>Sinopsis</th>
                                         <th>Disponible</th>
-                                        <th>Imagen</th>
+                                        <th style={{ width: '200px' }}>Imagen</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -129,14 +129,20 @@ class ListPeliculaComponent extends Component {
                                                     <td>{pelicula.director}</td>
                                                     <td>{pelicula.sinopsis}</td>
                                                     <td>{pelicula.disponible ? 'Sí' : 'No'}</td>
-                                                    <td>{pelicula.imagen}</td>
+                                                    <td>
+                                                        <img
+                                                            src={pelicula.imagen}
+                                                            alt={pelicula.titulo}
+                                                            style={{ width: '200px' }}
+                                                        />
+                                                    </td>
                                                     <td>
                                                         <div className="d-flex">
-                                                            <button className="btn btn-info" onClick={() => this.viewPelicula(pelicula.id)}>
+                                                            <button className="btn btn-secondary" onClick={() => this.viewPelicula(pelicula.id)}>
                                                                 Ver
                                                             </button>
                                                             <div className="mx-1"></div>
-                                                            <button className="btn btn-primary" onClick={() => this.updatePelicula(pelicula.id)}>
+                                                            <button className="btn btn-warning" onClick={() => this.updatePelicula(pelicula.id)}>
                                                                 Modificar
                                                             </button>
                                                             <div className="mx-1"></div>
