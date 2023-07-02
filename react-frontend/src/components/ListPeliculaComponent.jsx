@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import PeliculaService from '../services/PeliculaService';
-import CreatePeliculaComponent from '../components/CreatePeliculaComponent';
-import UpdatePeliculaComponent from '../components/UpdatePeliculaComponent';
+import CreatePeliculaComponent from '../components/CreateAndUpdatePeliculaComponent';
 import ViewPeliculaComponent from '../components/ViewPeliculaComponent';
-
 
 class ListPeliculaComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             peliculas: [],
+            isEditing: false,
             showAddModal: false,
-            showUpdateModal: false,
             showViewModal: false,
             selectedPelicula: null,
         };
@@ -20,7 +18,6 @@ class ListPeliculaComponent extends Component {
         this.deletePelicula = this.deletePelicula.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
         this.openViewModal = this.openViewModal.bind(this);
-        this.openUpdateModal = this.openUpdateModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.refreshPeliculas = this.refreshPeliculas.bind(this);
     }
@@ -28,11 +25,12 @@ class ListPeliculaComponent extends Component {
     componentDidMount() {
         this.refreshPeliculas();
     }
-    /*
-        addPelicula(){
-            this.props.history.push('/add-Pelicula');
-        }
-    */
+
+/*
+    addPelicula(){
+        this.props.history.push('/add-Pelicula');
+    }
+*/
 
     refreshPeliculas() {
         PeliculaService.getPeliculas()
@@ -45,7 +43,7 @@ class ListPeliculaComponent extends Component {
     }
 
     addPelicula() {
-        this.openAddModal();
+        this.setState({ isEditing: false, showAddModal: true });
     }
 
     viewPelicula(id) {
@@ -58,7 +56,7 @@ class ListPeliculaComponent extends Component {
 
     updatePelicula(id) {
         const pelicula = this.state.peliculas.find((pelicula) => pelicula.id === id);
-        this.setState({ selectedPelicula: pelicula, showUpdateModal: true });
+        this.setState({ selectedPelicula: pelicula, isEditing: true, showAddModal: true });
     }
 
     deletePelicula(id) {
@@ -73,19 +71,19 @@ class ListPeliculaComponent extends Component {
     }
 
     openAddModal() {
-        this.setState({ showAddModal: true });
+        this.setState({
+            isEditing: false,
+            showAddModal: true,
+            selectedPelicula: null // Restablecer el estado selectedPelicula a null
+        });
     }
 
     openViewModal() {
         this.setState({ showViewModal: true });
     }
 
-    openUpdateModal() {
-        this.setState({ showUpdateModal: true });
-    }
-
     closeModal() {
-        this.setState({ showAddModal: false, showViewModal: false, showUpdateModal: false });
+        this.setState({ isEditing: false, showAddModal: false, showViewModal: false });
     }
 
     render() {
@@ -102,7 +100,6 @@ class ListPeliculaComponent extends Component {
                     <div className="col">
                         <div className="table-responsive">
                             <table className="table table-striped table-bordered ">
-
                                 <thead>
                                     <tr>
                                         <th>Título</th>
@@ -116,46 +113,41 @@ class ListPeliculaComponent extends Component {
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
-                                    {
-                                        this.state.peliculas.map(
-                                            pelicula =>
-                                                <tr key={pelicula.id}>
-                                                    <td>{pelicula.titulo}</td>
-                                                    <td>{pelicula.genero}</td>
-                                                    <td>{pelicula.anioEstreno}</td>
-                                                    <td>{pelicula.duracionMinutos}</td>
-                                                    <td>{pelicula.director}</td>
-                                                    <td>{pelicula.sinopsis}</td>
-                                                    <td>{pelicula.disponible ? 'Sí' : 'No'}</td>
-                                                    <td>
-                                                        <img
-                                                            src={pelicula.imagen}
-                                                            alt={pelicula.titulo}
-                                                            style={{ width: '200px' }}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex">
-                                                            <button className="btn btn-secondary" onClick={() => this.viewPelicula(pelicula.id)}>
-                                                                Ver
-                                                            </button>
-                                                            <div className="mx-1"></div>
-                                                            <button className="btn btn-warning" onClick={() => this.updatePelicula(pelicula.id)}>
-                                                                Modificar
-                                                            </button>
-                                                            <div className="mx-1"></div>
-                                                            <button className="btn btn-danger" onClick={() => this.deletePelicula(pelicula.id)}>
-                                                                Eliminar
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                        )
-                                    }
+                                    {this.state.peliculas.map((pelicula) => (
+                                        <tr key={pelicula.id}>
+                                            <td>{pelicula.titulo}</td>
+                                            <td>{pelicula.genero}</td>
+                                            <td>{pelicula.anioEstreno}</td>
+                                            <td>{pelicula.duracionMinutos}</td>
+                                            <td>{pelicula.director}</td>
+                                            <td>{pelicula.sinopsis}</td>
+                                            <td>{pelicula.disponible ? 'Sí' : 'No'}</td>
+                                            <td>
+                                                <img
+                                                    src={pelicula.imagen}
+                                                    alt={pelicula.titulo}
+                                                    style={{ width: '200px' }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <div className="d-flex">
+                                                    <button className="btn btn-secondary" onClick={() => this.viewPelicula(pelicula.id)}>
+                                                        Ver
+                                                    </button>
+                                                    <div className="mx-1"></div>
+                                                    <button className="btn btn-warning" onClick={() => this.updatePelicula(pelicula.id)}>
+                                                        Modificar
+                                                    </button>
+                                                    <div className="mx-1"></div>
+                                                    <button className="btn btn-danger" onClick={() => this.deletePelicula(pelicula.id)}>
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
@@ -164,20 +156,13 @@ class ListPeliculaComponent extends Component {
                     <CreatePeliculaComponent
                         closeModal={this.closeModal}
                         refreshPeliculas={this.refreshPeliculas}
-                    />
-                )}
-
-                {this.state.showViewModal && (
-                    <ViewPeliculaComponent
-                        closeModal={this.closeModal}
+                        isEditing={this.state.isEditing}
                         pelicula={this.state.selectedPelicula}
                     />
                 )}
-
-                {this.state.showUpdateModal && (
-                    <UpdatePeliculaComponent
+                {this.state.showViewModal && (
+                    <ViewPeliculaComponent
                         closeModal={this.closeModal}
-                        refreshPeliculas={this.refreshPeliculas}
                         pelicula={this.state.selectedPelicula}
                     />
                 )}
