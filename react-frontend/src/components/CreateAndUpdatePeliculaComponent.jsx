@@ -14,8 +14,9 @@ class CreateAndUpdatePeliculaComponent extends Component {
             director: '',
             sinopsis: '',
             imagen: null,
+            imagenURL: '',
             disponible: false,
-            isEditing: false // Agregamos un estado para identificar si se está editando o creando una película
+            isEditing: false,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,9 +24,10 @@ class CreateAndUpdatePeliculaComponent extends Component {
     }
 
     componentDidMount() {
-        // Verificamos si se recibe una película en las props, lo que indica que estamos en modo de edición
-        if (this.props.pelicula) {
-            const pelicula = this.props.pelicula;
+        const { pelicula } = this.props;
+
+        if (pelicula) {
+            const imagenURL = pelicula.imagen || '';
             this.setState({
                 titulo: pelicula.titulo,
                 genero: pelicula.genero,
@@ -35,7 +37,8 @@ class CreateAndUpdatePeliculaComponent extends Component {
                 sinopsis: pelicula.sinopsis,
                 imagen: pelicula.imagen,
                 disponible: pelicula.disponible,
-                isEditing: true // Indicamos que estamos en modo edición
+                isEditing: true,
+                imagenURL,
             });
         }
     }
@@ -54,23 +57,25 @@ class CreateAndUpdatePeliculaComponent extends Component {
                 duracionMinutos: this.state.duracionMinutos,
                 director: this.state.director,
                 sinopsis: this.state.sinopsis,
-                disponible: this.state.disponible
+                disponible: this.state.disponible,
             })
         );
 
-        if (this.state.isEditing) {
-            // Si estamos en modo edición, actualizamos la película
-            PeliculaService.updatePelicula(this.props.pelicula.id, formData)
+        const { pelicula } = this.props;
+
+        const updatePelicula = () => {
+            PeliculaService.updatePelicula(pelicula.id, formData)
                 .then(() => {
                     console.log('Película actualizada exitosamente');
                     this.props.refreshPeliculas();
                     this.props.closeModal();
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Error al actualizar la película:', error);
                 });
-        } else {
-            // Si no estamos en modo edición, creamos una nueva película
+        };
+
+        const createPelicula = () => {
             PeliculaService.createPelicula(formData)
                 .then(() => {
                     console.log('Película creada exitosamente');
@@ -82,24 +87,36 @@ class CreateAndUpdatePeliculaComponent extends Component {
                         director: '',
                         sinopsis: '',
                         imagen: null,
-                        disponible: false
+                        imagenURL: '',
+                        disponible: false,
                     });
                     this.props.refreshPeliculas();
                     this.props.closeModal();
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Error al guardar la película:', error);
                 });
-        }
+        };
+
+        this.state.isEditing ? updatePelicula() : createPelicula();
     }
 
     handleImageChange(e) {
-        this.setState({ imagen: e.target.files[0] });
+        const file = e.target.files[0];
+
+        if (file) {
+            const imageUrl = URL.createObjectURL(file); // Obtenemos la URL de la imagen seleccionada
+
+            this.setState({
+                imagen: file,
+                imagenURL: imageUrl, // Actualizamos la URL de la imagen
+            });
+        }
     }
 
     render() {
-        const modalTitle = this.state.isEditing ? 'Modificar Película' : 'Agregar Película'; // Título dinámico según el modo
-        const submitButtonLabel = this.state.isEditing ? 'Modificar' : 'Agregar'; // Etiqueta del botón dinámica según el modo
+        const modalTitle = this.state.isEditing ? 'Modificar Película' : 'Agregar Película';
+        const submitButtonLabel = this.state.isEditing ? 'Modificar' : 'Agregar';
 
         return (
             <Modal isOpen={true} onRequestClose={this.props.closeModal} contentLabel={modalTitle} overlayClassName="modal-overlay">
@@ -113,29 +130,70 @@ class CreateAndUpdatePeliculaComponent extends Component {
                                 <div className="row">
                                     <div className="col-md-6 mb-3">
                                         <label className="form-label">Título</label>
-                                        <input type="text" name="titulo" className="form-control" value={this.state.titulo} onChange={e => this.setState({ titulo: e.target.value })} required />
+                                        <input
+                                            type="text"
+                                            name="titulo"
+                                            className="form-control"
+                                            value={this.state.titulo}
+                                            onChange={(e) => this.setState({ titulo: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-md-4 mb-3">
                                         <label className="form-label">Género</label>
-                                        <input type="text" name="genero" className="form-control" value={this.state.genero} onChange={e => this.setState({ genero: e.target.value })} required />
+                                        <input
+                                            type="text"
+                                            name="genero"
+                                            className="form-control"
+                                            value={this.state.genero}
+                                            onChange={(e) => this.setState({ genero: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                 </div>
                                 <div className="row">
                                     <div className="col-md-2 mb-3">
                                         <label className="form-label">Año de Estreno</label>
-                                        <input type="number" name="anioEstreno" className="form-control" value={this.state.anioEstreno} onChange={e => this.setState({ anioEstreno: e.target.value })} required />
+                                        <input
+                                            type="number"
+                                            name="anioEstreno"
+                                            className="form-control"
+                                            value={this.state.anioEstreno}
+                                            onChange={(e) => this.setState({ anioEstreno: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-md-2 mb-3">
                                         <label className="form-label">Duración (minutos)</label>
-                                        <input type="number" name="duracionMinutos" className="form-control" value={this.state.duracionMinutos} onChange={e => this.setState({ duracionMinutos: e.target.value })} required />
+                                        <input
+                                            type="number"
+                                            name="duracionMinutos"
+                                            className="form-control"
+                                            value={this.state.duracionMinutos}
+                                            onChange={(e) => this.setState({ duracionMinutos: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-md-4 mb-3">
                                         <label className="form-label">Director</label>
-                                        <input type="text" name="director" className="form-control" value={this.state.director} onChange={e => this.setState({ director: e.target.value })} required />
+                                        <input
+                                            type="text"
+                                            name="director"
+                                            className="form-control"
+                                            value={this.state.director}
+                                            onChange={(e) => this.setState({ director: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-md-2 mb-3 mt-4">
                                         <div className="form-check">
-                                            <input type="checkbox" name="disponible" className="form-check-input" checked={this.state.disponible} onChange={e => this.setState({ disponible: e.target.checked })} />
+                                            <input
+                                                type="checkbox"
+                                                name="disponible"
+                                                className="form-check-input"
+                                                checked={this.state.disponible}
+                                                onChange={(e) => this.setState({ disponible: e.target.checked })}
+                                            />
                                             <label className="form-check-label">Disponible</label>
                                         </div>
                                     </div>
@@ -143,11 +201,26 @@ class CreateAndUpdatePeliculaComponent extends Component {
                                 <div className="row">
                                     <div className="col-md-6 mb-3">
                                         <label className="form-label">Sinopsis</label>
-                                        <textarea name="sinopsis" className="form-control" value={this.state.sinopsis} onChange={e => this.setState({ sinopsis: e.target.value })} required />
+                                        <textarea
+                                            name="sinopsis"
+                                            className="form-control"
+                                            value={this.state.sinopsis}
+                                            onChange={(e) => this.setState({ sinopsis: e.target.value })}
+                                            required
+                                        />
                                     </div>
-                                    <div className="col-md-6 mb-3 ">
+                                    <div className="col-md-6 mb-3">
                                         <label className="form-label">Imagen</label>
-                                        <input type="file" name="imagen" className="form-control" onChange={this.handleImageChange} required />
+                                        <input
+                                            type="file"
+                                            name="imagen"
+                                            className="form-control"
+                                            onChange={this.handleImageChange}
+                                            required={!this.state.isEditing} // Se requiere seleccionar una imagen al agregar una película nueva, pero no al modificar una existente
+                                        />
+                                        {this.state.imagenURL && ( // Mostrar la imagen actual si existe
+                                            <img src={this.state.imagenURL} alt="Imagen actual" className="mt-2" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -161,10 +234,11 @@ class CreateAndUpdatePeliculaComponent extends Component {
                             </div>
                         </form>
                     </div>
-                </div>
-            </Modal>
+                </div >
+            </Modal >
         );
     }
+
 }
 
 export default CreateAndUpdatePeliculaComponent;
